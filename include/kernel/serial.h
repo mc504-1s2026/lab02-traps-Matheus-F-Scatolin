@@ -15,6 +15,9 @@
 
 #define SERIAL_BASE	((void*)0x10000000)
 
+/* size of the driver's internal receive buffer (bytes) */
+#define SERIAL_BUF_SIZE	256
+
 /* https://courses.grainger.illinois.edu/ece391/su2025/docs/NS16550A.pdf */
 /* Receiver Buffer Register (read-only) */
 #define SERIAL_RBR		0x0UL
@@ -109,6 +112,13 @@ void serial_init();
 size_t serial_read(char *buf);
 
 /*
+ * serial_has_data(): check whether the receive buffer holds unread data
+ *
+ * Non-destructive peek, used by the shell to decide whether it can sleep.
+ */
+bool serial_has_data();
+
+/*
  * serial_putc(): write a character to the serial port
  * @s: character to be sent out
  */
@@ -118,7 +128,7 @@ void serial_putc(char c);
  * serial_puts(): write a string to the serial port
  * @s: string to be sent out
  */
-void serial_puts(char *s);
+void serial_puts(const char *s);
 
 /*
  * serial_irq(): the interrupt handler for the serial device
