@@ -1,0 +1,31 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: shell functionality
+      id: shell-functionality
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: shell functionality
+        setup-command: sudo apt update && sudo apt install -y qemu-system-riscv64
+          binutils-riscv64-unknown-elf gdb-multiarch clang meson ninja-build lld llvm
+          python3-pytest
+        command: pytest lab/test_shell.py
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        SHELL-FUNCTIONALITY_RESULTS: "${{steps.shell-functionality.outputs.result}}"
+      with:
+        runners: shell-functionality
